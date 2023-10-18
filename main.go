@@ -1,7 +1,7 @@
 package main
 
 import (
-	"net/http"
+	"ncbs/api/route"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -15,13 +15,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/", func(c echo.Context) error {
-		return c.HTML(http.StatusOK, "Ummmmm")
-	})
-
-	e.GET("/health", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, struct{ Status string }{Status: "OK"})
-	})
+	route.SetUpRoutes(e)
 
 	httpPort := os.Getenv("PORT")
 	if httpPort == "" {
@@ -29,13 +23,4 @@ func main() {
 	}
 
 	e.Logger.Fatal(e.Start(":" + httpPort))
-}
-
-// Simple implementation of an integer minimum
-// Adapted from: https://gobyexample.com/testing-and-benchmarking
-func IntMin(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
