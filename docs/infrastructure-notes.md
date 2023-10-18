@@ -19,7 +19,7 @@ From that point, using named profiles seems like a nice way to go.
 First I created a group in AWS called `local-developers`, then created a new profile called
 `local-daniel-elsner` and added it to the group. Initially the group has no permissions at all.
 
-Then I created an access key for the user and downloaded it. I KNOW THIS IS NOT THE IDEAL SETUP. I'm just not in the mood for figuring out all the advanced IAM setup, we can deal with this later.
+Then I created an access key for the user and downloaded it. I know doing access keys is not the ideal setup. I'm just not in the mood for figuring out all the advanced IAM setup, we can deal with this later.
 
 Then I ran `aws configure --profile local-development` and entered the access key ID and secret access key. I left the default region as `us-east-2` and the default output format blank.
 
@@ -82,3 +82,27 @@ This does begin to balloon the docker run command though:
 ```
 docker run -v C:\Users\elsne\.aws:/root/.aws -e AWS_PROFILE=local-development -p 8080:8080 -e PORT=8080 nates-chicken-bs
 ```
+
+## Giving AppRunner Permissions
+This was bizzarely confusing. What wound up working was via the IAM console creating a custom [trust policy](https://stackoverflow.com/a/70092312/1333854):
+
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "tasks.apprunner.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+This creates a role which allows an AppRunner instance to assume this role (`sts:AssumeRole`), which would then grant it any permissions which I associate to this role (named `nates-chicken-bs-apprunner`).
+
+Once I created this role I gave it the pre-defined `AmazonDynamoDBFullAccess` role. Then I assigned the `nates-chicken-bs-apprunner` role to the AppRunner instance and it was able to communicate with DynamoDb.
+
+Doing this manually sucks. Since terraform is overkill for now just need to figure out the best way to automate all this setup with the CLI or something. 

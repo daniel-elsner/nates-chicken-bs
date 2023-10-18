@@ -13,16 +13,16 @@ docker build -t nates-chicken-bs .
 docker run -p 8080:8080 -e PORT=8080 nates-chicken-bs
 ```
 
-This command will mount the AWS credentials from (my) host machine into the container. This is useful for running the app locally in docker (steps over on [infrastructure-notes](infrastructure-notes.md) for I set up the AWS CLI on my machine).
+This command will mount the AWS credentials from (my) host machine into the container. This is useful for running the app locally in docker (steps over on [infrastructure-notes](docs/infrastructure-notes.md) for I set up the AWS CLI on my machine).
 
 ```
-docker run -v C:\Users\elsne\.aws:/root/.aws -p 8080:8080 -e PORT=8080 nates-chicken-bs
+docker run -v ${env:USERPROFILE}\.aws:/root/.aws -p 8080:8080 -e PORT=8080 nates-chicken-bs
 ```
 
 This gets even bigger if you don't want to use a `[default]` profile in your credentials file. You can specify the profile name with the `AWS_PROFILE` environment variable. This is useful for running the app locally in Docker.
 
 ```
-docker run -v C:\Users\elsne\.aws:/root/.aws -e AWS_PROFILE=local-development -p 8080:8080 -e PORT=8080 nates-chicken-bs
+docker run -v ${env:USERPROFILE}\.aws:/root/.aws -e AWS_PROFILE=local-development -p 8080:8080 -e PORT=8080 nates-chicken-bs
 ```
 
 
