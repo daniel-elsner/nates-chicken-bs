@@ -19,6 +19,12 @@ This command will mount the AWS credentials from (my) host machine into the cont
 docker run -v C:\Users\elsne\.aws:/root/.aws -p 8080:8080 -e PORT=8080 nates-chicken-bs
 ```
 
+This gets even bigger if you don't want to use a `[default]` profile in your credentials file. You can specify the profile name with the `AWS_PROFILE` environment variable. This is useful for running the app locally in Docker.
+
+```
+docker run -v C:\Users\elsne\.aws:/root/.aws -e AWS_PROFILE=local-development -p 8080:8080 -e PORT=8080 nates-chicken-bs
+```
+
 
 ## General Commands
 

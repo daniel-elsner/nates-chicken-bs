@@ -65,8 +65,20 @@ func GetAWSConfig() *aws.Config {
 
 This way when the app is deployed to AppRunner it should just work through the IAM role assigned to the AppRunner instance, and not care at all about a local profile.
 
-
+Note, I did test setting a local environment variable `AWS_PROFILE` and it worked but was oddly annoying. For Windows the only thing that wound up working was (via PowerShell):
 
 ```
-docker run -v ~/.aws:/root/.aws -p 8080:8080 -e PORT=8080 nates-chicken-bs
+$env:AWS_PROFILE="local-development"
+```
+
+Verify it by running:
+
+```
+Write-Host $env:AWS_PROFILE
+```
+
+This does begin to balloon the docker run command though:
+
+```
+docker run -v C:\Users\elsne\.aws:/root/.aws -e AWS_PROFILE=local-development -p 8080:8080 -e PORT=8080 nates-chicken-bs
 ```
