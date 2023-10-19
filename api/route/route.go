@@ -2,6 +2,7 @@ package route
 
 import (
 	"ncbs/api/handler"
+	"ncbs/api/model"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -34,5 +35,21 @@ func SetUpRoutes(e *echo.Echo) {
 	})
 
 	// e.GET("/recipes/:id", handler.GetRecipeById)
-	// e.POST("/recipes", handler.CreateRecipe)
+	e.POST("/recipes", func(c echo.Context) error {
+		recipe := new(model.Recipe)
+		if err := c.Bind(recipe); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"error": "Failed to bind request body to Recipe struct",
+			})
+		}
+
+		err := handler.CreateRecipe(*recipe)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "Failed to create recipe",
+			})
+		}
+
+		return c.JSON(http.StatusOK, recipe)
+	})
 }

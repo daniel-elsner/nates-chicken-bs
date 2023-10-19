@@ -2,6 +2,7 @@ package main
 
 import (
 	"ncbs/api/route"
+	"ncbs/db"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -9,9 +10,9 @@ import (
 )
 
 func main() {
+	db.InitDynamoClient()
 
 	e := echo.New()
-
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -19,7 +20,7 @@ func main() {
 
 	httpPort := os.Getenv("PORT")
 	if httpPort == "" {
-		httpPort = "8080" // Default port if not specified
+		httpPort = "8080"
 	}
 
 	e.Logger.Fatal(e.Start(":" + httpPort))

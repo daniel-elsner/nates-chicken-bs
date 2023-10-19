@@ -1,0 +1,11 @@
+@host = http://localhost:8080
+###
+
+POST {{host}}/recipes HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "trash",
+    "prepSteps": ["step1", "step2"],
+    "cookSteps": ["step1", "step2"]
+}
