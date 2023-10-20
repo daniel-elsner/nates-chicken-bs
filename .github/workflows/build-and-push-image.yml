@@ -34,6 +34,7 @@ jobs:
         REPOSITORY: nates-chicken-bs
         IMAGE_TAG: latest
       run: |
+        cd src
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
