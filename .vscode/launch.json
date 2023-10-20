@@ -6,7 +6,7 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": "${workspaceFolder}",
+            "program": "${workspaceFolder}/src",
             "env": {
                 "AWS_PROFILE": "local-development"
             }
