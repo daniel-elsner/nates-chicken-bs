@@ -1,5 +1,7 @@
 @findstr /B /V @ %~dpnx0 > %~dpn0.ps1 && powershell -ExecutionPolicy Bypass %~dpn0.ps1 %*
+@del %~dpn0.ps1
 @exit /B %ERRORLEVEL%
+
 if ($args.length -ge 3) {
     $env:CDK_DEPLOY_ACCOUNT, $args = $args
     $env:CDK_DEPLOY_REGION,  $args = $args

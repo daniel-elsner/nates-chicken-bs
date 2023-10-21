@@ -33,11 +33,11 @@ cdk ls --profile=local-cdk
 Running the cdk-check-diff for dev:
 
 ```
-.\cdk-check-diff.bat 375842827666 us-east-2 local-cdk
+.\cdk-check-diff.bat dev 375842827666 us-east-2 local-cdk
 ```
 
 Running the cdk-deploy-to for dev:
 
 ```
-.\cdk-deploy-to.bat 375842827666 us-east-2 local-cdk
+.\cdk-deploy-to.bat dev 375842827666 us-east-2 local-cdk
 ```
