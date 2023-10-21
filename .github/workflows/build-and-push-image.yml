@@ -32,7 +32,7 @@ jobs:
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         REPOSITORY: ncbs-images
-        IMAGE_TAG: latest
+        IMAGE_TAG: dev-latest
       run: |
         cd src
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
