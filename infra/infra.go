@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsapprunner"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsecr"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsiam"
 	"github.com/aws/constructs-go/constructs/v10"
@@ -23,48 +24,60 @@ func NewInfraStack(scope constructs.Construct, id string, props *InfraStackProps
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	// Create ECR repository
+	// create ecr repository, apprunner will build from these images
 	ecrRepo := awsecr.NewRepository(stack, jsii.String("ncbs-images"), &awsecr.RepositoryProps{
-		RemovalPolicy:  awscdk.RemovalPolicy_DESTROY,
 		RepositoryName: jsii.String("ncbs-images"),
+		RemovalPolicy:  awscdk.RemovalPolicy_DESTROY,
 	})
 
-	// Create IAM Role
-	role := awsiam.NewRole(stack, jsii.String("AppRunnerECRAccessRoleCDK"), &awsiam.RoleProps{
-		// AssumedBy: awsiam.NewServicePrincipal(jsii.String("tasks.apprunner.amazonaws.com"), nil),
+	// iam role for apprunner to access ecr
+	buildRoleName := jsii.String("dev-apprunner-ncbs-build")
+	ecrRole := awsiam.NewRole(stack, buildRoleName, &awsiam.RoleProps{
+		RoleName:  buildRoleName,
 		AssumedBy: awsiam.NewServicePrincipal(jsii.String("build.apprunner.amazonaws.com"), nil),
 	})
+	ecrRepo.GrantPull(ecrRole)
 
-	// Add policy to IAM Role for ECR access
-	ecrRepo.GrantPull(role)
+	// iam role for apprunner to access while running
+	instanceRoleName := jsii.String("dev-apprunner-ncbs-tasks")
+	appRunnerInstanceRole := awsiam.NewRole(stack, instanceRoleName, &awsiam.RoleProps{
+		RoleName:  instanceRoleName,
+		AssumedBy: awsiam.NewServicePrincipal(jsii.String("tasks.apprunner.amazonaws.com"), nil),
+	})
 
-	awsapprunner.NewCfnService(stack, jsii.String("ncbs"), &awsapprunner.CfnServiceProps{
-		ServiceName: jsii.String("ncbs"),
+	// defining the app runner service
+	appRunnerName := jsii.String("dev-ncbs")
+	awsapprunner.NewCfnService(stack, appRunnerName, &awsapprunner.CfnServiceProps{
+		ServiceName: appRunnerName,
+
+		InstanceConfiguration: &awsapprunner.CfnService_InstanceConfigurationProperty{
+			Cpu:             jsii.String("0.25 vCPU"),
+			Memory:          jsii.String("0.5 GB"),
+			InstanceRoleArn: jsii.String(*appRunnerInstanceRole.RoleArn()),
+		},
 		SourceConfiguration: &awsapprunner.CfnService_SourceConfigurationProperty{
 			AuthenticationConfiguration: &awsapprunner.CfnService_AuthenticationConfigurationProperty{
-				AccessRoleArn: jsii.String(*role.RoleArn()),
+				AccessRoleArn: jsii.String(*ecrRole.RoleArn()),
 			},
 			AutoDeploymentsEnabled: jsii.Bool(true),
 			ImageRepository: &awsapprunner.CfnService_ImageRepositoryProperty{
-				ImageIdentifier:     jsii.String(*ecrRepo.RepositoryUri()),
+				ImageIdentifier:     jsii.String(*ecrRepo.RepositoryUri() + ":latest"),
 				ImageRepositoryType: jsii.String("ECR"),
 			},
 		},
 	})
 
-	// // Create DynamoDB table
-	// dynamoTable := awsdynamodb.NewTable(stack, jsii.String("MyTable"), &awsdynamodb.TableProps{
-	// 	PartitionKey: &awsdynamodb.Attribute{
-	// 		Name: jsii.String("id"),
-	// 		Type: awsdynamodb.AttributeType_STRING,
-	// 	},
-	// })
+	// creating dynamo db table
+	recipesTableName := jsii.String("Recipes") // will handle environment namespacing later
+	recipesTable := awsdynamodb.NewTable(stack, recipesTableName, &awsdynamodb.TableProps{
+		TableName: recipesTableName,
+		PartitionKey: &awsdynamodb.Attribute{
+			Name: jsii.String("ID"),
+			Type: awsdynamodb.AttributeType_STRING,
+		},
+	})
 
-	// // Grant permissions
-	// appRunnerService.GrantPrincipal().AddToPolicy(awsiam.NewPolicyStatement(&awsiam.PolicyStatementProps{
-	// 	Actions:   jsii.Strings("dynamodb:*"),
-	// 	Resources: jsii.Strings(dynamoTable.TableArn()),
-	// }))
+	recipesTable.GrantReadWriteData(appRunnerInstanceRole)
 
 	return stack
 }

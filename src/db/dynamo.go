@@ -14,8 +14,8 @@ var DynamoDBClient *dynamodb.DynamoDB
 func InitDynamoClient() {
 	config := config.GetAWSConfig()
 
-	endpoint := "http://localhost:8000"
-	config.Endpoint = &endpoint
+	//endpoint := "http://localhost:8000"
+	//config.Endpoint = &endpoint
 
 	sess := session.Must(session.NewSession(config))
 	DynamoDBClient = dynamodb.New(sess)
