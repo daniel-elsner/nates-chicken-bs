@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/aws/aws-cdk-go/awscdk/v2"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsapprunner"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsecr"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsiam"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
@@ -22,20 +24,33 @@ func NewInfraStack(scope constructs.Construct, id string, props *InfraStackProps
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
 	// Create ECR repository
-	awsecr.NewRepository(stack, jsii.String("ncbs-images"), &awsecr.RepositoryProps{
+	ecrRepo := awsecr.NewRepository(stack, jsii.String("ncbs-images"), &awsecr.RepositoryProps{
 		RemovalPolicy:  awscdk.RemovalPolicy_DESTROY,
 		RepositoryName: jsii.String("ncbs-images"),
 	})
 
-	// Create App Runner service
-	// appRunnerService := awsapprunner.NewService(stack, jsii.String("MyAppRunnerService"), &awsapprunner.ServiceProps{
-	// 	// Configure source from ECR
-	// 	Source: awsapprunner.Source.FromEcr(&awsapprunner.EcrProps{
-	// 		Repository: ecrRepo,
-	// 		// Additional options...
-	// 	}),
-	// 	// Additional options...
-	// })
+	// Create IAM Role
+	role := awsiam.NewRole(stack, jsii.String("AppRunnerECRAccessRoleCDK"), &awsiam.RoleProps{
+		// AssumedBy: awsiam.NewServicePrincipal(jsii.String("tasks.apprunner.amazonaws.com"), nil),
+		AssumedBy: awsiam.NewServicePrincipal(jsii.String("build.apprunner.amazonaws.com"), nil),
+	})
+
+	// Add policy to IAM Role for ECR access
+	ecrRepo.GrantPull(role)
+
+	awsapprunner.NewCfnService(stack, jsii.String("ncbs"), &awsapprunner.CfnServiceProps{
+		ServiceName: jsii.String("ncbs"),
+		SourceConfiguration: &awsapprunner.CfnService_SourceConfigurationProperty{
+			AuthenticationConfiguration: &awsapprunner.CfnService_AuthenticationConfigurationProperty{
+				AccessRoleArn: jsii.String(*role.RoleArn()),
+			},
+			AutoDeploymentsEnabled: jsii.Bool(true),
+			ImageRepository: &awsapprunner.CfnService_ImageRepositoryProperty{
+				ImageIdentifier:     jsii.String(*ecrRepo.RepositoryUri()),
+				ImageRepositoryType: jsii.String("ECR"),
+			},
+		},
+	})
 
 	// // Create DynamoDB table
 	// dynamoTable := awsdynamodb.NewTable(stack, jsii.String("MyTable"), &awsdynamodb.TableProps{
@@ -74,8 +89,8 @@ func env() *awscdk.Environment {
 	account := os.Getenv("CDK_DEPLOY_ACCOUNT")
 	region := os.Getenv("CDK_DEPLOY_REGION")
 
-	log.Println("Using account:", account)
-	log.Println("Using region:", region)
+	log.Println("Using account:", account, " (from CDK_DEPLOY_ACCOUNT env var)")
+	log.Println("Using region:", region, " (from CDK_DEPLOY_REGION env var)")
 
 	return &awscdk.Environment{
 		Account: jsii.String(account),
