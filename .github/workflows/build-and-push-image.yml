@@ -31,7 +31,7 @@ jobs:
     - name: Build, tag, and push docker image to Amazon ECR
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        REPOSITORY: nates-chicken-bs
+        REPOSITORY: ncbs-images
         IMAGE_TAG: latest
       run: |
         cd src
