@@ -7,7 +7,7 @@ if ($args.length -ge 4) {
     $env:CDK_DEPLOY_ACCOUNT, $args = $args
     $env:CDK_DEPLOY_REGION,  $args = $args
     $profile, $args = $args
-    npx cdk diff $args --profile=$profile
+    npx cdk destroy $args --profile=$profile
     exit $lastExitCode
 } else {
     [console]::error.writeline("Provide environment name, account, region, and profile as the first four args.")

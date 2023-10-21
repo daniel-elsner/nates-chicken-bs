@@ -22,7 +22,9 @@ func NewInfraStack(scope constructs.Construct, id string, props *InfraStackProps
 	stack := awscdk.NewStack(scope, &id, &props.StackProps)
 	envName := props.EnvName
 
-	// create ecr repository, apprunner will build from these images
+	// create ecr repository, apprunner will build from these images for all environments
+	// note that this would be a shared resource across all environments so there is no env
+	// namespacing. will sort this out later
 	ecrRepo := awsecr.NewRepository(stack, jsii.String("ncbs-images"), &awsecr.RepositoryProps{
 		RepositoryName: jsii.String("ncbs-images"),
 		RemovalPolicy:  awscdk.RemovalPolicy_DESTROY,
@@ -58,7 +60,7 @@ func NewInfraStack(scope constructs.Construct, id string, props *InfraStackProps
 			},
 			AutoDeploymentsEnabled: jsii.Bool(true),
 			ImageRepository: &awsapprunner.CfnService_ImageRepositoryProperty{
-				ImageIdentifier:     jsii.String(*ecrRepo.RepositoryUri() + ":latest"),
+				ImageIdentifier:     jsii.String(*ecrRepo.RepositoryUri() + ":" + envName + "-latest"),
 				ImageRepositoryType: jsii.String("ECR"),
 			},
 		},
@@ -86,7 +88,8 @@ func main() {
 	envName := getRequiredEnvVar("CDK_ENV_NAME")
 
 	// https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-	NewInfraStack(app, "InfraStack", &InfraStackProps{
+	NewInfraStack(app, envName+"-ncbs-infra-stack", &InfraStackProps{
+
 		awscdk.StackProps{
 			Env: &awscdk.Environment{
 				Account: jsii.String(getRequiredEnvVar("CDK_DEPLOY_ACCOUNT")),
