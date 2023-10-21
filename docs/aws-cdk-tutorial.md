@@ -1,4 +1,4 @@
-# AWS CDK
+# AWS CDK Setup/Tutorial
 Dumping ground for notes as I work through this, as I've never used the AWS CDK before.
 
 ## Steps
