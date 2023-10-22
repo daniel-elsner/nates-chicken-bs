@@ -1,6 +1,6 @@
-# Notes Regarding Infrastructure
+# Notes Regarding Initial Infrastructure Setup
 
-This is a dumping ground, not going to be organized.
+This is a dumping ground, not going to be organized. Just me trying to get the very initial setup done & the interactions between the code & AWS.
 
 ## AppRunner
 
