@@ -1,6 +1,19 @@
 # nates-chicken-bs
 
-Dumping ground of helpful commands and notes, not organizing stuff right now
+This repository contains a simple Go application which is deployed to AWS AppRunner. It presents a basic REST API which could eventually turn into a backend for Nate's Chicken BS mobile application.
+
+Infrastructure is managed with AWS CDK in the [ncbs-cdk](https://github.com/daniel-elsner/ncbs-cdk) repository.
+
+# Running the App
+
+## Prerequisites
+
+To run this you will need:
+ - [Go](https://go.dev/doc/install)
+
+Nice-To-Haves:
+ - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+ - [Docker](https://docs.docker.com/get-docker/)
 
 ## Docker Commands
 This will build the image and run it on port 8080 with the environment variable PORT set to 8080. This is on Docker for Windows, should be similar on other platforms.
