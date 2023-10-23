@@ -4,6 +4,8 @@ This repository contains a simple Go application which is deployed to AWS AppRun
 
 Infrastructure is managed with AWS CDK in the [ncbs-cdk](https://github.com/daniel-elsner/ncbs-cdk) repository.
 
+This is built & deployed on merges to `main` using GitHub Actions. The workflow is defined [here](.github/workflows/build-and-push-image.yml).
+
 # Running the App
 
 ## Prerequisites
@@ -34,7 +36,7 @@ You have a few options for running locally. You can:
 
 ### Option 1: Build and Run
 
-Navigate to the src directory and execute the run-build-local.bat script:
+Navigate to the `src` directory and execute the `run-build-local.bat` script:
 
 ```
 cd src
@@ -52,7 +54,7 @@ Simply hit F5 to launch the debugger, and it should use the `ncbs - Debug Mode` 
 
 ### Option 3: Run in Docker
 
-Navigate to the src directory and execute the run-docker.bat script:
+Navigate to the `src` directory and execute the `run-docker.bat` script:
 
 ```
 cd src
@@ -64,7 +66,7 @@ cd src
 
 ## Emulating Dependencies
 
-By default, the app will run against resources in AWS. This can be difficult to do as we add more dependencies, so we can try instead to emulate them locally.
+By default, the app will run against resources in AWS. Managing permissions for this can be difficult as we add more dependencies, so we can try instead to emulate them locally.
 
 This is what the `local-env` directory is for. It contains a `docker-compose` file which will spin up local versions of the dependencies (such as DynamoDB) which the app can then connect to. 
 
@@ -80,7 +82,7 @@ cd local-env
 
 **NOTE:** This presently works for setting up the dependencies, but I haven't cleanly updated the app to connect to them. I'll do that soon.
 
-# Setting up Air for Live Reload
+## Setting up Air for Live Reload
 
 [air](https://github.com/cosmtrek/air) is a nice tool for local development which will automatically reload the app when it detects changes to the source code.
 
