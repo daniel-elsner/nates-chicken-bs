@@ -8,64 +8,97 @@ Infrastructure is managed with AWS CDK in the [ncbs-cdk](https://github.com/dani
 
 ## Prerequisites
 
-To run this you will need:
+To run this you should have:
  - [Go](https://go.dev/doc/install)
-
-Nice-To-Haves:
  - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
  - [Docker](https://docs.docker.com/get-docker/)
 
-## Docker Commands
-This will build the image and run it on port 8080 with the environment variable PORT set to 8080. This is on Docker for Windows, should be similar on other platforms.
+## Configure Profile
 
-```
-docker build -t nates-chicken-bs .
-```
+Configure the AWS CLI with a profile named `local-development`. The profile name is important as it is assumed to exist in various configurations & scripts.
 
-```
-docker run -p 8080:8080 -e PORT=8080 nates-chicken-bs
+```bash
+aws configure --profile local-development
 ```
 
-This command will mount the AWS credentials from (my) host machine into the container. This is useful for running the app locally in docker (steps over on [infrastructure-notes](docs/infrastructure-notes.md) for I set up the AWS CLI on my machine).
+You will need to be given the access key and secret key for the profile. These can be generated in the AWS console (we should see if SSO is viable at some point).
 
-```
-docker run -v ${env:USERPROFILE}\.aws:/root/.aws -p 8080:8080 -e PORT=8080 nates-chicken-bs
-```
+## Run the App
 
-This gets even bigger if you don't want to use a `[default]` profile in your credentials file. You can specify the profile name with the `AWS_PROFILE` environment variable. This is useful for running the app locally in Docker.
+You have a few options for running locally. You can: 
 
-```
-docker run -v ${env:USERPROFILE}\.aws:/root/.aws -e AWS_PROFILE=local-development -p 8080:8080 -e PORT=8080 nates-chicken-bs
-```
+1. Build the project and run the executable directly
+2. Launch it in Debug mode from VS Code
+3. Run it in Docker
 
 
-## General Commands
+### Option 1: Build and Run
 
-To build the package:
+Navigate to the src directory and execute the run-build-local.bat script:
+
 ```
-go build 
+cd src
 ```
 
-Then simply run the executable: 
 ```
-.\ncbs.exe
+\run-build-local.bat
 ```
+
+### Option 2: Debug in VS Code
+
+For this you should be able to leverage the `launch.json` file in the `.vscode` directory at the root of this project.
+
+Simply hit F5 to launch the debugger, and it should use the `ncbs - Debug Mode` configuration.
+
+### Option 3: Run in Docker
+
+Navigate to the src directory and execute the run-docker.bat script:
+
+```
+cd src
+```
+
+```
+\run-docker.bat
+```
+
+## Emulating Dependencies
+
+By default, the app will run against resources in AWS. This can be difficult to do as we add more dependencies, so we can try instead to emulate them locally.
+
+This is what the `local-env` directory is for. It contains a `docker-compose` file which will spin up local versions of the dependencies (such as DynamoDB) which the app can then connect to. 
+
+To leverage this, navigate to the `local-env` directory and execute the `setup-local-env.bat` script:
+
+```
+cd local-env
+```
+
+```
+\setup-local-env.bat
+```
+
+**NOTE:** This presently works for setting up the dependencies, but I haven't cleanly updated the app to connect to them. I'll do that soon.
 
 # Setting up Air for Live Reload
-https://github.com/cosmtrek/air
 
-First, install air
+[air](https://github.com/cosmtrek/air) is a nice tool for local development which will automatically reload the app when it detects changes to the source code.
+
+First, install air:
 
 ```bash
 go install github.com/cosmtrek/air@latest
 ```
 
 Verify the installation
+
 ```bash
 air -v
 ```
 
-Run air in the root of the project
+Run air from the `/src` directory:
+
 ```bash
+cd /src
 air
 ```
