@@ -1,12 +1,6 @@
 @echo off
 
-set AWS_PROFILE=%1
-
-if "%AWS_PROFILE%"=="" (
-    set AWS_PROFILE=local-development
-)
-
-echo Using AWS Profile: '%AWS_PROFILE%' (Not important, just needs to exist) 
+set AWS_PROFILE=local-development
 
 echo Starting Docker Compose...
 docker-compose up -d
