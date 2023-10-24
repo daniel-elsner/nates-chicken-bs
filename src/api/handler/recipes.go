@@ -3,7 +3,6 @@ package handler
 import (
 	"log"
 	"ncbs/api/model"
-	"ncbs/db"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -13,7 +12,17 @@ import (
 
 var recipesTable = "Recipes"
 
-func CreateRecipe(recipe model.Recipe) error {
+type RecipeHandler struct {
+	Database dynamodb.DynamoDB
+}
+
+func NewRecipeHandler(database dynamodb.DynamoDB) *RecipeHandler {
+	return &RecipeHandler{
+		Database: database,
+	}
+}
+
+func (h *RecipeHandler) CreateRecipe(recipe model.Recipe) error {
 	prepSteps := make([]*dynamodb.AttributeValue, len(recipe.PrepSteps))
 	for i, step := range recipe.PrepSteps {
 		prepSteps[i] = &dynamodb.AttributeValue{S: aws.String(step)}
@@ -34,7 +43,7 @@ func CreateRecipe(recipe model.Recipe) error {
 		TableName: aws.String(recipesTable),
 	}
 
-	_, err := db.DynamoDBClient.PutItem(input)
+	_, err := h.Database.PutItem(input)
 	if err != nil {
 		log.Fatalf("Could not put item into DynamoDB table: %s", err)
 		return err
@@ -43,11 +52,11 @@ func CreateRecipe(recipe model.Recipe) error {
 	return nil
 }
 
-func GetAllRecipes() ([]model.Recipe, error) {
+func (h *RecipeHandler) GetAllRecipes() ([]model.Recipe, error) {
 	input := &dynamodb.ScanInput{
 		TableName: aws.String(recipesTable),
 	}
-	result, err := db.DynamoDBClient.Scan(input)
+	result, err := h.Database.Scan(input)
 	if err != nil {
 		log.Fatalf("Could not scan DynamoDB table: %s", err)
 		return nil, err

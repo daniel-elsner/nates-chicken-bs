@@ -8,7 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func SetUpRoutes(e *echo.Echo) {
+func SetUpRoutes(e *echo.Echo, recipeHandler *handler.RecipeHandler) {
+
 	e.GET("/", func(c echo.Context) error {
 		return c.HTML(http.StatusOK, "Nates chicken bullshit")
 	})
@@ -20,7 +21,7 @@ func SetUpRoutes(e *echo.Echo) {
 	// could probably have some sort of default middleware that handles the
 	// model -> json conversion, along with standard error handling?
 	e.GET("/recipes", func(c echo.Context) error {
-		recipes, err := handler.GetAllRecipes()
+		recipes, err := recipeHandler.GetAllRecipes()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": "Failed to get recipes",
@@ -37,7 +38,7 @@ func SetUpRoutes(e *echo.Echo) {
 			})
 		}
 
-		err := handler.CreateRecipe(*recipe)
+		err := recipeHandler.CreateRecipe(*recipe)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": "Failed to create recipe",

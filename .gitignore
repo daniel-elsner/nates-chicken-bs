@@ -22,3 +22,6 @@ go.work
 
 # temp directory
 /tmp
+
+# ignore the main .env file 
+.env

@@ -1,4 +1,8 @@
 @echo off
-set AWS_PROFILE=local-development
+
+for /f "tokens=1,* delims==" %%a in ('type .env') do (
+    set %%a=%%b
+)
+
 go build
 .\ncbs.exe

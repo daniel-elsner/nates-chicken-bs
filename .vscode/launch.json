@@ -8,7 +8,9 @@
             "mode": "debug",
             "program": "${workspaceFolder}/src/main.go",
             "env": {
-                "AWS_PROFILE": "local-development"
+                "AWS_PROFILE": "local-development",
+                "NCBS_DEPLOY_ENV": "local",
+                "NCBS_PORT": "8080"
             }
         }
     ]
