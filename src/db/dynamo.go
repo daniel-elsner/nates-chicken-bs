@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log"
 	"ncbs/config"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -14,6 +15,8 @@ func InitDynamoClient(appConfig *config.Configuration, awsConfig *aws.Config) *d
 
 	localConfig := *awsConfig
 	if appConfig.DeployEnv == "local" {
+		log.Println("STARTUP LOG: Using local DynamoDB instance")
+
 		endpoint := "http://localhost:8000"
 		localConfig.Endpoint = &endpoint
 	}

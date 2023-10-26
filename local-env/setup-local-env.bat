@@ -14,8 +14,8 @@ if errorlevel 1 (
     echo Creating Recipes table...
     aws dynamodb create-table ^
     --table-name Recipes ^
-    --attribute-definitions AttributeName=RecipeId,AttributeType=S ^
-    --key-schema AttributeName=RecipeId,KeyType=HASH ^
+    --attribute-definitions AttributeName=ID,AttributeType=S ^
+    --key-schema AttributeName=ID,KeyType=HASH ^
     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 ^
     --endpoint-url http://localhost:8000
 ) else (

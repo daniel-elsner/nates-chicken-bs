@@ -25,6 +25,12 @@ aws configure --profile local-development
 
 You will need to be given the access key and secret key for the profile. These can be generated in the AWS console (we should see if SSO is viable at some point).
 
+## Create .env File
+
+To use the batch scripts mentioned in following steps you will need a `.env` file in the root of the `/src` directory. These scripts will read this file to set environment variables.
+
+For the base configuration simply copy the `example.env` file and rename it to `.env`.
+
 ## Run the App
 
 You have a few options for running locally. You can: 
@@ -80,7 +86,7 @@ cd local-env
 \setup-local-env.bat
 ```
 
-**NOTE:** This presently works for setting up the dependencies, but I haven't cleanly updated the app to connect to them. I'll do that soon.
+At this point, if you run the app using any of the 3 options listed above **and** update `NCBS_DEPLOY_ENV` in your `.env` file to `local`, it should connect to the local dependencies instead of AWS.
 
 ## Setting up Air for Live Reload
 
