@@ -12,8 +12,11 @@ import (
 // GetAWSConfig returns an AWS configuration based on environment variables or defaults.
 func GetAWSConfig() *aws.Config {
 	var awsConfig *aws.Config
+
+	// profile is expected to only be set when running locally, when deployed to AWS
+	// we will be using the IAM role attached to AppRunner
 	if profile := os.Getenv("AWS_PROFILE"); profile != "" {
-		log.Printf("Creating config with AWS profile %s", profile)
+		log.Printf("STARTUP LOG: Creating config with AWS profile %s", profile)
 		awsConfig = &aws.Config{
 			Region:      aws.String("us-east-2"),
 			Credentials: credentials.NewSharedCredentials("", profile),

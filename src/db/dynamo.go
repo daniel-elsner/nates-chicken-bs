@@ -1,22 +1,26 @@
 package db
 
 import (
+	"log"
 	"ncbs/config"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-var DynamoDBClient *dynamodb.DynamoDB
-
 // InitDynamoClient initializes the DynamoDB client. This should be called
 // before any DynamoDB operations are performed.
-func InitDynamoClient() {
-	config := config.GetAWSConfig()
+func InitDynamoClient(appConfig *config.Configuration, awsConfig *aws.Config) *dynamodb.DynamoDB {
 
-	//endpoint := "http://localhost:8000"
-	//config.Endpoint = &endpoint
+	localConfig := *awsConfig
+	if appConfig.DeployEnv == "local" {
+		log.Println("STARTUP LOG: Using local DynamoDB instance")
 
-	sess := session.Must(session.NewSession(config))
-	DynamoDBClient = dynamodb.New(sess)
+		endpoint := "http://localhost:8000"
+		localConfig.Endpoint = &endpoint
+	}
+
+	sess := session.Must(session.NewSession(&localConfig))
+	return dynamodb.New(sess)
 }
