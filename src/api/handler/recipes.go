@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"log"
+	"fmt"
 	"ncbs/api/model"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -45,8 +45,7 @@ func (h *RecipeHandler) CreateRecipe(recipe model.Recipe) error {
 
 	_, err := h.Database.PutItem(input)
 	if err != nil {
-		log.Fatalf("Could not put item into DynamoDB table: %s", err)
-		return err
+		return fmt.Errorf("Could not put item into DynamoDB table: %w", err)
 	}
 
 	return nil
@@ -58,15 +57,13 @@ func (h *RecipeHandler) GetAllRecipes() ([]model.Recipe, error) {
 	}
 	result, err := h.Database.Scan(input)
 	if err != nil {
-		log.Fatalf("Could not scan DynamoDB table: %s", err)
-		return nil, err
+		return nil, fmt.Errorf("Could not scan DynamoDB table: %w", err)
 	}
 
 	var recipes []model.Recipe
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &recipes)
 	if err != nil {
-		log.Fatalf("Failed to unmarshal Query result items, %v", err)
-		return nil, err
+		return nil, fmt.Errorf("Failed to unmarshal Query result items, %w", err)
 	}
 
 	return recipes, nil

@@ -15,7 +15,7 @@ func main() {
 	// loading configurations
 	appConfig, err := config.LoadConfiguration()
 	if err != nil {
-		log.Fatalf("Failed to load configuration: %s", err)
+		log.Fatalf("Failed to load configuration: %e", err)
 	}
 
 	awsConfig := config.GetAWSConfig()
