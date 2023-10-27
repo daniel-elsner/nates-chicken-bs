@@ -19,15 +19,10 @@ func SetUpRoutes(e *echo.Echo, recipeHandler *handler.RecipeHandler) {
 		return c.JSON(http.StatusOK, struct{ Status string }{Status: "OK"})
 	})
 
-	// could probably have some sort of default middleware that handles the
-	// model -> json conversion, along with standard error handling?
-
 	e.GET("/recipes", func(c echo.Context) error {
 		recipes, err := recipeHandler.GetAllRecipes()
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to get recipes",
-			})
+			return handleError(err, c, "Failed to get recipes")
 		}
 		return c.JSON(http.StatusOK, recipes)
 	})
@@ -35,13 +30,15 @@ func SetUpRoutes(e *echo.Echo, recipeHandler *handler.RecipeHandler) {
 	e.POST("/recipes", binding.RecipeBinderMiddleware(func(c echo.Context) error {
 		recipe := c.Get("recipe").(*model.Recipe)
 		err := recipeHandler.CreateRecipe(*recipe)
-
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to create recipe",
-			})
+			return handleError(err, c, "Failed to create recipe")
 		}
 
 		return c.JSON(http.StatusOK, recipe)
 	}))
+}
+
+func handleError(err error, c echo.Context, message string) error {
+	c.Logger().Error(err)
+	return echo.NewHTTPError(http.StatusInternalServerError, message)
 }

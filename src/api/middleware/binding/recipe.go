@@ -8,18 +8,25 @@ import (
 )
 
 // RecipeBinderMiddleware is a middleware function that handles binding a recipe
-// from the request body to a Recipe struct. If the binding fails, an error is
-// returned.
+// from the request body to a valid Recipe struct.
 func RecipeBinderMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		recipe := new(model.Recipe)
 		if err := c.Bind(recipe); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"error": "Failed to bind request body to Recipe struct",
-			})
+			return echo.NewHTTPError(http.StatusBadRequest, "Failed to bind request body to Recipe struct")
 		}
 
-		// could validate the recipe here
+		if recipe.Name == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Recipe name cannot be empty")
+		}
+
+		if recipe.PrepSteps == nil || len(recipe.PrepSteps) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Recipe prep steps cannot be empty")
+		}
+
+		if recipe.CookSteps == nil || len(recipe.CookSteps) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest, "Recipe cook steps cannot be empty")
+		}
 
 		c.Set("recipe", recipe)
 		return next(c)
